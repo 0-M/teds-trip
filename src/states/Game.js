@@ -9,7 +9,7 @@ export default class extends Phaser.State {
 
   create () {
     let groundHeight = 300
-    const bannerText = 'Phaser + ES6 + Webpack'
+    const bannerText = 'Teds Trip'
     let banner = this.add.text(this.world.centerX, this.game.height - 80, bannerText)
     banner.font = 'Bangers'
     banner.padding.set(10, 16)
@@ -17,7 +17,6 @@ export default class extends Phaser.State {
     banner.fill = '#77BFA3'
     banner.smoothed = false
     banner.anchor.setTo(0.5)
-
     this.game.ted = new Ted({
       game: this.game,
       x: 32,
@@ -41,6 +40,14 @@ export default class extends Phaser.State {
   }
 
   update () {
-    game.physics.arcade.collide(this.game.ted, this.platforms)    
+    game.physics.arcade.collide(this.game.ted, this.platforms)
+  //  if(spaceBar.isDown)
+  //  {
+  //    fire();
+  //  }
   }
+
+  //fire () {
+  //  console.log("Woo2!")
+//  }
 }
