@@ -33,7 +33,7 @@ export default class extends Phaser.State {
 
   createPlatform (x, y) {
     var plat1 = this.platforms.create(x, y, 'ground')
-    plat1.scale.setTo(10, 1)
+    plat1.scale.setTo(1, 0.25)
     plat1.body.immovable = true
   }
 
