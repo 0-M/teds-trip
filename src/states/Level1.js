@@ -26,15 +26,22 @@ export default class extends Phaser.State {
     this.platforms = this.game.add.group()
     this.platforms.enableBody = true
     var ground = this.platforms.create(0, this.game.world.height - 64, 'ground')
-    this.createPlatform(400, this.game.world.height - 600)
+    this.createPlatform(400, this.game.world.height - 600, 'floor2', 5)
     ground.scale.setTo(30, 1)
     ground.body.immovable = true
   }
 
-  createPlatform (x, y) {
-    var plat1 = this.platforms.create(x, y, 'ground')
-    plat1.scale.setTo(1, 0.25)
+  createPlatform (x, y, type, number) {
+    var plat1 = this.platforms.create(x, y, type)
     plat1.body.immovable = true
+    number = number - 1
+    var count = 1
+    while (number > 0) {
+      var plat = this.platforms.create(x + (count * plat1.width), y, type)
+      plat.body.immovable = true
+      count++
+      number--
+    }
   }
 
   /*  render () {
