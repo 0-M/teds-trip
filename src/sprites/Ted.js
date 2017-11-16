@@ -5,6 +5,7 @@ export default class extends Phaser.Sprite {
     super(game, x, y, 'ted')
 
     // this.scale = {x: 0.25, y: 0.25}
+    // this.scale = {x: 0.25, y: 0.25}
 
     this.anchor.setTo(0.5)
     this.setupAnimations()

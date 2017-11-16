@@ -26,7 +26,10 @@ export default class extends Phaser.State {
 
   preloadLevelAssets () {
     this.load.image('ground', './assets/images/ground.jpg')
+<<<<<<< HEAD
     this.load.image('floor2', './assets/images/floor2.png')
+=======
+>>>>>>> zkrausman-dev
   }
 
   render () {
