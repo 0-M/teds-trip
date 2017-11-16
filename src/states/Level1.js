@@ -5,12 +5,12 @@ import Ted from '../sprites/Ted'
 export default class extends Phaser.State {
   init () {}
   preload () {
-    this.load.image('bullet', './assets/images/arrow.png')
+    this.load.image('bullet', './assets/images/bullet3.png')
   }
 
   create () {
     let groundHeight = 300
-    this.fireRate = 100
+    this.fireRate = 700
     this.nextFire = 0
 
     this.game.physics.startSystem(Phaser.Physics.ARCADE)
@@ -24,7 +24,7 @@ export default class extends Phaser.State {
     this.bullets = this.game.add.group()
     this.bullets.enableBody = true
     this.bullets.physicsBodyType = Phaser.Physics.ARCADE
-    this.bullets.createMultiple(50, 'bullet')
+    this.bullets.createMultiple(20, 'bullet')
     this.bullets.setAll('checkWorldBounds', true)
     this.bullets.setAll('outOfBoundsKill', true)
 
@@ -41,7 +41,7 @@ export default class extends Phaser.State {
     /*if (__DEV__) {
       this.game.debug.spriteInfo(this.mushroom, 32, 32)
     }*/
-
+    this.game.debug.spriteInfo(this.game.ted, 32, 100)
     this.game.debug.text('Active Bullets: ' + this.bullets.countLiving() + ' / ' + this.bullets.total, 32, 32)
     this.game.debug.text('Inactive Bullets: ' + this.bullets.countDead() + ' / ' + this.bullets.total, 32, 64)
 
@@ -64,9 +64,11 @@ export default class extends Phaser.State {
 
         this.bullet = this.bullets.getFirstDead();
 
-        this.bullet.reset(200, 500);
+        this.bullet.scale.setTo(0.5,0.5)
 
-        this.game.physics.arcade.moveToXY(this.bullet, 1000,500);
+        this.bullet.reset(this.game.ted.x + 40, this.game.ted.y);
+
+        this.game.physics.arcade.moveToXY(this.bullet, this.game.ted.x + 1000,this.game.ted.y);
     }
   }
 }
