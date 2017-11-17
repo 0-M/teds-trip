@@ -36,7 +36,10 @@ export default class extends Phaser.Sprite {
 
     if (this.airborne) {
       this.landingNeeded = true
-      this.frame = 40;
+      if(this.body.velocity.y < 0)
+        this.frame = 40
+      else
+        this.frame = 41
     }
     else { this.body.velocity.x = 0 }
 
