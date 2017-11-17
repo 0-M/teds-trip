@@ -20,8 +20,17 @@ export default class extends Phaser.Sprite {
     this.iniJumpInc = 3000
     this.jumpInc = 250
 
-    this.cursors = game.input.keyboard.createCursorKeys()
-  }
+    // this.cursors = game.input.keyboard.createCursorKeys()
+    this.cursors = game.input.keyboard.addKeys({
+      'up': Phaser.KeyCode.W,
+      'down': Phaser.KeyCode.S,
+      'left': Phaser.KeyCode.A,
+      'right': Phaser.KeyCode.D,
+      'flinch': Phaser.KeyCode.F
+      // 'attack': Phaser.KeyCode.C,
+      // 'dodge': Phaser.KeyCode.Q,
+      })
+    }
 
   setupAnimations () {
     this.animations.add('idle', [0, 0, 0, 0, 1, 2, 1, 0, 3, 4, 3, 0, 0, 0, 0, 0], 8, true)
@@ -30,18 +39,17 @@ export default class extends Phaser.Sprite {
     this.animations.add('landing', [32, 33, 34, 35, 36, 37, 38, 39], 32, false)
     this.animations.add('crouch', [32, 38, 37, 48, 49, 50, 51, 52], 32, false)
     this.animations.add('stand-up', [52, 51, 50, 49, 48, 37, 38, 32], 32, false)
+    this.animations.add('flinch', [64,65], 16, true)
   }
 
   update () {
-
+    if (this.cursors.flinch.isDown){this.handleFlinchAnimation()}
     if (this.airborne) {
       this.landingNeeded = true
-      if(this.body.velocity.y < 0)
-        this.frame = 40
-      else
-        this.frame = 41
+      if(this.body.velocity.y < 0) {this.frame = 40}
+      else                         {this.frame = 41}
     }
-    else { this.body.velocity.x = 0 }
+    else                           { this.body.velocity.x = 0 }
 
     this.airborne = this.body.touching.down? this.airborne = false : true;
 
@@ -120,5 +128,13 @@ export default class extends Phaser.Sprite {
     setTimeout(() => {
       this.animating = false
     }, 250)
+  }
+
+  handleFlinchAnimation () {
+    this.animating = true
+    this.animations.play('flinch')
+    setTimeout(() => {
+      this.animating = false
+    }, 500)
   }
 }
