@@ -2,12 +2,16 @@ import Phaser from 'phaser'
 import Ted from '../sprites/Ted'
 
 export default class extends Phaser.State {
-  init () {}
+  init () {
+    //this.stage.backgroundColor = '#F442DF'
+    this.background = this.game.add.tileSprite(0, 0, 10000, 3000, 'background')
+  }
   preload () {
     this.load.image('bullet', './assets/images/bullet3.png')
   }
 
   create () {
+
     let groundHeight = 300
     this.fireRate = 300
     this.nextFire = 0
@@ -39,8 +43,8 @@ export default class extends Phaser.State {
     this.platforms = this.game.add.group()
     this.platforms.enableBody = true
     var ground = this.platforms.create(0, this.game.world.height - 64, 'ground')
-    this.createPlatform(400, this.game.world.height - 600, 'floor2', 5)
-    this.createPlatform(800, this.game.world.height - 1000, 'floor2', 5)
+    this.createPlatform(400, this.game.world.height - 600, 'floor2', 3)
+    this.createPlatform(2000, this.game.world.height - 1200, 'floor2', 4)
 
     ground.scale.setTo(30, 1)
     ground.body.immovable = true
@@ -77,18 +81,35 @@ export default class extends Phaser.State {
   }
 
   fire () {
-    if (this.game.time.now > this.nextFire && this.bullets.countDead() > 0) {
-      console.log('Pew Pew Pew!')
+    if(this.game.ted.facingRight == 1)
+    {
+      if (this.game.time.now > this.nextFire && this.bullets.countDead() > 0) {
+        console.log('Pew Pew Pew Right!')
 
-      this.nextFire = this.game.time.now + this.fireRate
+        this.nextFire = this.game.time.now + this.fireRate
 
-      this.bullet = this.bullets.getFirstDead()
+        this.bullet = this.bullets.getFirstDead()
 
-      this.bullet.scale.setTo(0.5, 0.5)
+        this.bullet.scale.setTo(0.5, 0.5)
 
-      this.bullet.reset(this.game.ted.x + 40, this.game.ted.y)
+        this.bullet.reset(this.game.ted.x + 40, this.game.ted.y)
+                this.game.physics.arcade.moveToXY(this.bullet, this.game.ted.x + 1000, this.game.ted.y, 400)
+      }
+    }
+    else
+    {
+      if (this.game.time.now > this.nextFire && this.bullets.countDead() > 0) {
+        console.log('Pew Pew Pew Left!')
 
-      this.game.physics.arcade.moveToXY(this.bullet, this.game.ted.x + 1000, this.game.ted.y, 400)
+        this.nextFire = this.game.time.now + this.fireRate
+
+        this.bullet = this.bullets.getFirstDead()
+
+        this.bullet.scale.setTo(0.5, 0.5)
+
+        this.bullet.reset(this.game.ted.x + 40, this.game.ted.y)
+                this.game.physics.arcade.moveToXY(this.bullet, this.game.ted.x - 1000, this.game.ted.y, 400)
+      }
     }
   }
 }
