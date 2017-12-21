@@ -77,18 +77,35 @@ export default class extends Phaser.State {
   }
 
   fire () {
-    if (this.game.time.now > this.nextFire && this.bullets.countDead() > 0) {
-      console.log('Pew Pew Pew!')
+    if(this.game.ted.pointingRight == false)
+    {
+      if (this.game.time.now > this.nextFire && this.bullets.countDead() > 0) {
+        console.log('Pew Pew Pew Right!')
 
-      this.nextFire = this.game.time.now + this.fireRate
+        this.nextFire = this.game.time.now + this.fireRate
 
-      this.bullet = this.bullets.getFirstDead()
+        this.bullet = this.bullets.getFirstDead()
 
-      this.bullet.scale.setTo(0.5, 0.5)
+        this.bullet.scale.setTo(0.5, 0.5)
 
-      this.bullet.reset(this.game.ted.x + 40, this.game.ted.y)
+        this.bullet.reset(this.game.ted.x + 40, this.game.ted.y)
+                this.game.physics.arcade.moveToXY(this.bullet, this.game.ted.x + 1000, this.game.ted.y, 400)
+      }
+    }
+    else
+    {
+      if (this.game.time.now > this.nextFire && this.bullets.countDead() > 0) {
+        console.log('Pew Pew Pew Left!')
 
-      this.game.physics.arcade.moveToXY(this.bullet, this.game.ted.x + 1000, this.game.ted.y, 400)
+        this.nextFire = this.game.time.now + this.fireRate
+
+        this.bullet = this.bullets.getFirstDead()
+
+        this.bullet.scale.setTo(0.5, 0.5)
+
+        this.bullet.reset(this.game.ted.x + 40, this.game.ted.y)
+                this.game.physics.arcade.moveToXY(this.bullet, this.game.ted.x - 1000, this.game.ted.y, 400)
+      }
     }
   }
 }

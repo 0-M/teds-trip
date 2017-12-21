@@ -14,6 +14,7 @@ export default class extends Phaser.Sprite {
     this.landingNeeded = false
     this.crouching = false
     this.goingUp = false
+    //this.dir = false // False = right, True = left
 
     this.walkSpeed = 1000
     this.jumpSpeed = 4000
