@@ -81,7 +81,7 @@ export default class extends Phaser.State {
   }
 
   fire () {
-    if(this.game.ted.pointingRight == false)
+    if(this.game.ted.facingRight == 1)
     {
       if (this.game.time.now > this.nextFire && this.bullets.countDead() > 0) {
         console.log('Pew Pew Pew Right!')
