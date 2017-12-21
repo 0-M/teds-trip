@@ -21,11 +21,9 @@ export default class extends Phaser.Sprite {
     this.iniJumpInc = 3000
     this.jumpInc = 25       // Hold the jump button longer to jump higher.
 
-    this.pointingRight = true
+    this.facingRight = 1  // 1: Ted's facing right, -1: Ted's facing left
     this.dashing = false
     this.dashIni = 3000
-    this.dashVelDec = 50
-    this.dashLandingNeeded = false
     this.dashCoolingDown = false
 
     this.cursors = game.input.keyboard.addKeys({
@@ -52,26 +50,26 @@ export default class extends Phaser.Sprite {
   update () {
 
     if (!this.dashing){
-        this.body.velocity.x = 0
-        if (this.airborne) {
-            this.landingNeeded = true
-            if (this.body.velocity.y < 0) {
-                this.frame = 40
-            } else {
-                this.frame = 41
-            }
-        } else {
-            this.dashCoolingDown = false
-        }
+      this.body.velocity.x = 0
+
+      if (this.airborne) {
+
+        this.landingNeeded = true
+        if (this.body.velocity.y < 0) {this.frame = 40}
+        else                          {this.frame = 41}
+
+      } else {
+        this.dashCoolingDown = false
+      }
     }
 
     this.airborne = this.body.touching.down? this.airborne = false : true
 
     if ((this.goingUp && !this.cursors.up.isDown) || this.body.velocity.y <= -this.jumpSpeed) {
-        this.goingUp = false
+      this.goingUp = false
     }
     if (this.goingUp && this.cursors.up.isDown) {
-        this.body.velocity.y -= this.jumpInc
+      this.body.velocity.y -= this.jumpInc
     }
 
     if (!this.animating) {
@@ -82,11 +80,11 @@ export default class extends Phaser.Sprite {
         if (this.cursors.left.isDown) {
           if (this.scale.x > 0) { this.scale.x *= -1 }
             this.body.velocity.x = -this.walkSpeed
-            this.pointingRight = true
+            this.facingRight = -1
         } else if (this.cursors.right.isDown) {
           if (this.scale.x < 0) { this.scale.x *= -1 }
             this.body.velocity.x = this.walkSpeed
-            this.pointingRight = false
+            this.facingRight = 1
         }
 
         if (!this.airborne) {
@@ -161,16 +159,14 @@ export default class extends Phaser.Sprite {
     this.animating = true
     this.dashing = true
     this.dashCoolingDown = true
-    this.body.velocity.x = this.pointingRight? -this.dashIni : this.dashIni
+    this.body.velocity.x = this.facingRight*this.dashIni
     this.animations.play('dash')
     this.frame = 80
 
     setTimeout(() => {
       this.animating = false
       this.dashing = false
-      // this.dashing = false
       this.body.velocity.x = 0
-
     }, 250)
   }
 
