@@ -11,6 +11,7 @@ export default class extends Phaser.State {
     let groundHeight = 300
     this.fireRate = 300
     this.nextFire = 0
+    this.game.world.setBounds(0, 0, this.game.width * 5, this.game.height * 2)
 
     this.game.physics.startSystem(Phaser.Physics.ARCADE)
     this.spaceKey = this.game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR)
@@ -33,11 +34,14 @@ export default class extends Phaser.State {
 
     this.game.ted.body.gravity.y = 6000
     this.game.ted.body.collideWorldBounds = true
+    this.game.camera.follow(this.game.ted)
 
     this.platforms = this.game.add.group()
     this.platforms.enableBody = true
     var ground = this.platforms.create(0, this.game.world.height - 64, 'ground')
     this.createPlatform(400, this.game.world.height - 600, 'floor2', 5)
+    this.createPlatform(800, this.game.world.height - 1000, 'floor2', 5)
+
     ground.scale.setTo(30, 1)
     ground.body.immovable = true
   }
@@ -60,6 +64,7 @@ export default class extends Phaser.State {
       this.game.debug.spriteInfo(this.mushroom, 32, 32)
     } */
     this.game.debug.spriteInfo(this.game.ted, 32, 100)
+    // this.game.debug.spriteInfo(this.platforms, 32, 200)
     this.game.debug.text('Active Bullets: ' + this.bullets.countLiving() + ' / ' + this.bullets.total, 32, 32)
     this.game.debug.text('Inactive Bullets: ' + this.bullets.countDead() + ' / ' + this.bullets.total, 32, 64)
   }
