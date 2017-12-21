@@ -5,7 +5,7 @@ export default class extends Phaser.State {
   init () {}
   preload () {
     this.load.image('bullet', './assets/images/bullet3.png')
-  }s
+  }
 
   create () {
     let groundHeight = 300
