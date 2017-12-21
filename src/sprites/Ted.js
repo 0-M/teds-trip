@@ -25,6 +25,7 @@ export default class extends Phaser.Sprite {
     this.dashing = false
     this.dashIni = 3000
     this.dashCoolingDown = false
+    this.dashRecoveryNeeded = false
 
     this.cursors = game.input.keyboard.addKeys({
       'up': Phaser.KeyCode.W,
@@ -45,9 +46,11 @@ export default class extends Phaser.Sprite {
     this.animations.add(    'stand-up', [52, 51, 50, 49, 48, 37, 38, 32], 32, false)
     this.animations.add(      'flinch', [64,65], 16, true)
     this.animations.add(        'dash', [81,82,83,83,83,83,83,83,83,83,83,83], 48, false)
+    this.animations.add( 'dashRecover', [84,85,86,86,48,37,38,39], 16, false)
   }
 
   update () {
+    this.airborne = this.body.touching.down? this.airborne = false : true
 
     if (!this.dashing){
       this.body.velocity.x = 0
@@ -62,8 +65,6 @@ export default class extends Phaser.Sprite {
         this.dashCoolingDown = false
       }
     }
-
-    this.airborne = this.body.touching.down? this.airborne = false : true
 
     if ((this.goingUp && !this.cursors.up.isDown) || this.body.velocity.y <= -this.jumpSpeed) {
       this.goingUp = false
@@ -90,6 +91,8 @@ export default class extends Phaser.Sprite {
         if (!this.airborne) {
           if (this.landingNeeded) {
             this.handleLandingAnimation()
+          } else if (this.dashRecoveryNeeded ) {
+            this.handleDashRecoveryAnimation()
           } else if (this.cursors.up.isDown) {
             this.handleJumpAnimation()
           } else if (this.cursors.left.isDown || this.cursors.right.isDown) {
@@ -125,6 +128,7 @@ export default class extends Phaser.Sprite {
     setTimeout(() => {
       this.animating = false
       this.frame = 0
+      this.dashRecoveryNeeded = false
     }, 300)
   }
 
@@ -166,15 +170,18 @@ export default class extends Phaser.Sprite {
     setTimeout(() => {
       this.animating = false
       this.dashing = false
+      this.dashRecoveryNeeded = true
       this.body.velocity.x = 0
     }, 250)
   }
 
-  handledashLandingAnimation() {
+  handleDashRecoveryAnimation() {
     this.animating = true
-    this.animations.play('dash-landing')
+    this.animations.play('dashRecover')
+
     setTimeout(() => {
       this.animating = false
+      this.dashRecoveryNeeded = false
     }, 500)
   }
 }
