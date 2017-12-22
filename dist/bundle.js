@@ -11385,12 +11385,6 @@ var _class = function (_Phaser$State) {
         y: this.game.height - (groundHeight + 64)
       });
 
-      this.game.redTed = new _RedTed2.default({
-        game: this.game,
-        x: 500,
-        y: this.game.height - (groundHeight + 64)
-      });
-
       this.soundtrack = this.game.add.audio('exist_soundtrack');
       this.soundtrack.loop = true;
       // this.soundtrack.volume = 0.3
@@ -11409,16 +11403,6 @@ var _class = function (_Phaser$State) {
       this.game.ted.body.gravity.y = 6000;
       this.game.ted.body.collideWorldBounds = true;
 
-      this.game.add.existing(this.game.redTed);
-      this.game.physics.arcade.enable(this.game.redTed);
-
-      this.game.redTed.body.gravity.y = 6000;
-      this.game.redTed.body.collideWorldBounds = true;
-      /*
-          this.game.redTed.body.onCollide = new Phaser.Signal();
-          this.game.redTed.body.onCollide.add(this.resetLevel, this)
-      */
-
       this.game.camera.follow(this.game.ted);
 
       this.platforms = this.game.add.group();
@@ -11429,6 +11413,29 @@ var _class = function (_Phaser$State) {
 
       ground.scale.setTo(30, 1);
       ground.body.immovable = true;
+
+      this.makeEnemies();
+    }
+  }, {
+    key: 'makeEnemies',
+    value: function makeEnemies() {
+      this.enemies = this.game.add.group();
+
+      for (var tempIndex = 2; tempIndex < 8; tempIndex++) {
+        var en1 = new _RedTed2.default({
+          game: this.game,
+          x: tempIndex * 500,
+          y: this.game.height - 364
+        });
+
+        this.game.add.existing(en1);
+        this.game.physics.arcade.enable(en1);
+
+        en1.body.gravity.y = 6000;
+        en1.body.collideWorldBounds = true;
+
+        this.enemies.add(en1);
+      }
     }
   }, {
     key: 'resetLevel',
@@ -11463,17 +11470,21 @@ var _class = function (_Phaser$State) {
   }, {
     key: 'update',
     value: function update() {
+      var _this2 = this;
+
       if (this.spaceKey.isDown) {
         this.fire();
       }
       this.game.physics.arcade.collide(this.game.ted, this.platforms);
-      this.game.physics.arcade.collide(this.game.redTed, this.platforms);
-      if (this.game.physics.arcade.collide(this.game.ted, this.game.redTed)) {
+      this.game.physics.arcade.collide(this.enemies, this.platforms);
+      if (this.game.physics.arcade.collide(this.game.ted, this.enemies)) {
         this.resetLevel();
       }
-      if (this.game.physics.arcade.collide(this.bullets, this.game.redTed)) {
-        this.game.redTed.destroy();
-      }
+      this.enemies.forEach(function (element) {
+        if (_this2.game.physics.arcade.collide(_this2.bullets, element)) {
+          element.destroy();
+        }
+      });
     }
   }, {
     key: 'fire',
