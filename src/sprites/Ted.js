@@ -54,15 +54,10 @@ export default class extends Phaser.Sprite {
 
     if (!this.dashing){
       this.body.velocity.x = 0
-
       if (this.airborne) {
-
         this.landingNeeded = true
         if (this.body.velocity.y < 0) {this.frame = 40}
         else                          {this.frame = 41}
-
-      } else {
-        this.dashCoolingDown = false
       }
     }
 
@@ -89,6 +84,9 @@ export default class extends Phaser.Sprite {
         }
 
         if (!this.airborne) {
+
+          this.dashCoolingDown = false
+
           if (this.landingNeeded) {
             this.handleLandingAnimation()
           } else if (this.dashRecoveryNeeded ) {
