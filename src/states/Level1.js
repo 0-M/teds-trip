@@ -32,6 +32,11 @@ export default class extends Phaser.State {
       y: this.game.height - (groundHeight + 64)
     })
 
+    this.soundtrack = this.game.add.audio('exist_soundtrack')
+    this.soundtrack.loop = true
+    // this.soundtrack.volume = 0.3
+    this.soundtrack.play()
+
     this.bullets = this.game.add.group()
     this.bullets.enableBody = true
     this.bullets.physicsBodyType = Phaser.Physics.ARCADE
