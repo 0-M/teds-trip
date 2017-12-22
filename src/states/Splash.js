@@ -15,6 +15,7 @@ export default class extends Phaser.State {
     //
     this.load.image('mushroom', 'assets/images/mushroom2.png')
     this.load.spritesheet('ted', 'assets/images/ted_spritesheet.png', 256, 256)
+    this.load.spritesheet('redTed', 'assets/images/red_ted_spritesheet.png',256,256)
     this.load.audio('exist_soundtrack', 'assets/audio/exist_soundtrack.wav')
   }
 
