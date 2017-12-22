@@ -26,6 +26,12 @@ export default class extends Phaser.State {
       y: this.game.height - (groundHeight + 64)
     })
 
+    this.game.redTed = new RedTed({
+      game: this.game,
+      x: 200,
+      y: this.game.height - (groundHeight + 64)
+    })
+
     this.bullets = this.game.add.group()
     this.bullets.enableBody = true
     this.bullets.physicsBodyType = Phaser.Physics.ARCADE
@@ -34,11 +40,20 @@ export default class extends Phaser.State {
     this.bullets.setAll('outOfBoundsKill', true)
 
     this.game.add.existing(this.game.ted)
-
     this.game.physics.arcade.enable(this.game.ted)
 
     this.game.ted.body.gravity.y = 6000
     this.game.ted.body.collideWorldBounds = true
+
+
+
+    this.game.add.existing(this.game.redTed)
+    this.game.physics.arcade.enable(this.game.redTed)
+
+    this.game.redTed.body.gravity.y = 6000
+    this.game.redTed.body.collideWorldBounds = true
+
+
     this.game.camera.follow(this.game.ted)
 
     this.platforms = this.game.add.group()
@@ -79,6 +94,8 @@ export default class extends Phaser.State {
       this.fire()
     }
     this.game.physics.arcade.collide(this.game.ted, this.platforms)
+    this.game.physics.arcade.collide(this.game.redTed, this.platforms)
+
   }
 
   fire () {
