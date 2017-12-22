@@ -26,6 +26,7 @@ export default class extends Phaser.Sprite {
     this.dashIni = 3000
     this.dashCoolingDown = false
     this.dashRecoveryNeeded = false
+    this.hairballing = false
 
     this.cursors = game.input.keyboard.addKeys({
       'up': Phaser.KeyCode.W,
@@ -33,7 +34,8 @@ export default class extends Phaser.Sprite {
       'left': Phaser.KeyCode.A,
       'right': Phaser.KeyCode.D,
       'flinch': Phaser.KeyCode.F,
-      'dash': Phaser.KeyCode.Q
+      'dash': Phaser.KeyCode.Q,
+      'hairball': Phaser.KeyCode.SPACEBAR
       })
     }
 
@@ -47,6 +49,7 @@ export default class extends Phaser.Sprite {
     this.animations.add(      'flinch', [64,65], 16, true)
     this.animations.add(        'dash', [81,82,83,83,83,83,83,83,83,83,83,83], 48, false)
     this.animations.add( 'dashRecover', [84,85,86,86,48,37,38,39], 16, false)
+    this.animations.add(    'hairball', [80,96,97,98], 16, false)
   }
 
   update () {
@@ -61,26 +64,27 @@ export default class extends Phaser.Sprite {
       }
     }
 
-    if ((this.goingUp && !this.cursors.up.isDown) || this.body.velocity.y <= -this.jumpSpeed) {
+    if ((this.goingUp && !this.cursors.up.isDown) ||
+         this.body.velocity.y <= -this.jumpSpeed) {
       this.goingUp = false
     }
+
     if (this.goingUp && this.cursors.up.isDown) {
       this.body.velocity.y -= this.jumpInc
     }
 
     if (!this.animating) {
-      if (this.cursors.dash.isDown && !this.dashCoolingDown) {
+      if (!this.dashCoolingDown && this.cursors.dash.isDown) {
         this.handleDashAnimation()
-      // Left and right movement and sprite direction.
       } else if (!this.crouching) {
         if (this.cursors.left.isDown) {
           if (this.scale.x > 0) { this.scale.x *= -1 }
-            this.body.velocity.x = -this.walkSpeed
-            this.facingRight = -1
+          this.body.velocity.x = -this.walkSpeed
+          this.facingRight = -1
         } else if (this.cursors.right.isDown) {
           if (this.scale.x < 0) { this.scale.x *= -1 }
-            this.body.velocity.x = this.walkSpeed
-            this.facingRight = 1
+          this.body.velocity.x = this.walkSpeed
+          this.facingRight = 1
         }
 
         if (!this.airborne) {
@@ -137,6 +141,16 @@ export default class extends Phaser.Sprite {
     setTimeout(() => {
       this.animating = false
       this.frame = 52
+    }, 250)
+  }
+
+  handleHairballingAnimation() {
+    this.animating = true
+    this.hairballing = true
+    this.animations.play('hairball')
+    setTimeout(() => {
+      this.animating = false
+      this.frame = 98
     }, 250)
   }
 
