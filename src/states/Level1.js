@@ -28,7 +28,7 @@ export default class extends Phaser.State {
 
     this.game.redTed = new RedTed({
       game: this.game,
-      x: 200,
+      x: 500,
       y: this.game.height - (groundHeight + 64)
     })
 
@@ -52,7 +52,10 @@ export default class extends Phaser.State {
 
     this.game.redTed.body.gravity.y = 6000
     this.game.redTed.body.collideWorldBounds = true
-
+/*
+    this.game.redTed.body.onCollide = new Phaser.Signal();
+    this.game.redTed.body.onCollide.add(this.resetLevel, this)
+*/
 
     this.game.camera.follow(this.game.ted)
 
@@ -64,6 +67,12 @@ export default class extends Phaser.State {
 
     ground.scale.setTo(30, 1)
     ground.body.immovable = true
+
+
+  }
+
+  resetLevel() {
+    this.state.start('Level1')
   }
 
   createPlatform (x, y, type, number) {
@@ -95,6 +104,9 @@ export default class extends Phaser.State {
     }
     this.game.physics.arcade.collide(this.game.ted, this.platforms)
     this.game.physics.arcade.collide(this.game.redTed, this.platforms)
+    if (this.game.physics.arcade.collide(this.game.ted, this.game.redTed)) {
+      this.resetLevel()
+    }
 
   }
 
