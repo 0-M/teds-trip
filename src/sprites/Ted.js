@@ -55,7 +55,13 @@ export default class extends Phaser.Sprite {
   update () {
     this.airborne = this.body.touching.down? this.airborne = false : true
 
-    if (!this.dashing){
+    if (!this.cursors.hairball.isDown)
+      this.hairballing = false
+
+    if (this.hairballing) {
+      if (!this.animating)
+        this.handleHairballingAnimation()
+    } else if (!this.dashing) {
       this.body.velocity.x = 0
       if (this.airborne) {
         this.landingNeeded = true
@@ -74,7 +80,9 @@ export default class extends Phaser.Sprite {
     }
 
     if (!this.animating) {
-      if (!this.dashCoolingDown && this.cursors.dash.isDown) {
+      if (this.cursors.hairball.isDown) {
+        this.hairballing = true
+      } else if (!this.dashCoolingDown && this.cursors.dash.isDown) {
         this.handleDashAnimation()
       } else if (!this.crouching) {
         if (this.cursors.left.isDown) {
@@ -88,9 +96,7 @@ export default class extends Phaser.Sprite {
         }
 
         if (!this.airborne) {
-
           this.dashCoolingDown = false
-
           if (this.landingNeeded) {
             this.handleLandingAnimation()
           } else if (this.dashRecoveryNeeded ) {
@@ -105,7 +111,6 @@ export default class extends Phaser.Sprite {
             this.animations.play('idle')
           }
         }
-
       } else if (!this.cursors.down.isDown) {
         this.handleStandUpAnimation()
       }
