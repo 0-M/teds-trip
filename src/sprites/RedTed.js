@@ -78,7 +78,7 @@ export default class extends Phaser.Sprite {
       this.airborne = true
       this.goingUp = true
       this.body.velocity.y = -this.iniJumpInc
-    }, 250)
+    }, 20)
   }
 
   handleLandingAnimation () {
