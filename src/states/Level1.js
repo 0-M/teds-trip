@@ -107,6 +107,9 @@ export default class extends Phaser.State {
     if (this.game.physics.arcade.collide(this.game.ted, this.game.redTed)) {
       this.resetLevel()
     }
+    if (this.game.physics.arcade.collide(this.bullets, this.game.redTed)) {
+      this.game.redTed.destroy()
+    }
 
   }
 
