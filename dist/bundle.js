@@ -3194,6 +3194,8 @@ var _class = function (_Phaser$Sprite) {
     _this.dashing = false;
     _this.dashIni = 3000;
     _this.dashCoolingDown = false;
+    _this.dashRecoveryNeeded = false;
+    _this.hairballing = false;
 
     _this.cursors = game.input.keyboard.addKeys({
       'up': _phaser2.default.KeyCode.W,
@@ -3201,7 +3203,8 @@ var _class = function (_Phaser$Sprite) {
       'left': _phaser2.default.KeyCode.A,
       'right': _phaser2.default.KeyCode.D,
       'flinch': _phaser2.default.KeyCode.F,
-      'dash': _phaser2.default.KeyCode.Q
+      'dash': _phaser2.default.KeyCode.Q,
+      'hairball': _phaser2.default.KeyCode.SPACEBAR
     });
     return _this;
   }
@@ -3217,40 +3220,43 @@ var _class = function (_Phaser$Sprite) {
       this.animations.add('stand-up', [52, 51, 50, 49, 48, 37, 38, 32], 32, false);
       this.animations.add('flinch', [64, 65], 16, true);
       this.animations.add('dash', [81, 82, 83, 83, 83, 83, 83, 83, 83, 83, 83, 83], 48, false);
+      this.animations.add('dashRecover', [84, 85, 86, 86, 48, 37, 38, 39], 16, false);
+      this.animations.add('hairball', [80, 96, 97, 98], 16, false);
     }
   }, {
     key: 'update',
     value: function update() {
+      this.airborne = this.body.touching.down ? this.airborne = false : true;
 
-      if (!this.dashing) {
+      if (!this.cursors.hairball.isDown) this.hairballing = false;
+
+      if (this.hairballing) {
+        if (!this.animating) this.handleHairballingAnimation();
+      } else if (!this.dashing) {
         this.body.velocity.x = 0;
-
         if (this.airborne) {
-
           this.landingNeeded = true;
           if (this.body.velocity.y < 0) {
             this.frame = 40;
           } else {
             this.frame = 41;
           }
-        } else {
-          this.dashCoolingDown = false;
         }
       }
-
-      this.airborne = this.body.touching.down ? this.airborne = false : true;
 
       if (this.goingUp && !this.cursors.up.isDown || this.body.velocity.y <= -this.jumpSpeed) {
         this.goingUp = false;
       }
+
       if (this.goingUp && this.cursors.up.isDown) {
         this.body.velocity.y -= this.jumpInc;
       }
 
       if (!this.animating) {
-        if (this.cursors.dash.isDown && !this.dashCoolingDown) {
+        if (this.cursors.hairball.isDown) {
+          this.hairballing = true;
+        } else if (!this.dashCoolingDown && this.cursors.dash.isDown) {
           this.handleDashAnimation();
-          // Left and right movement and sprite direction.
         } else if (!this.crouching) {
           if (this.cursors.left.isDown) {
             if (this.scale.x > 0) {
@@ -3267,8 +3273,11 @@ var _class = function (_Phaser$Sprite) {
           }
 
           if (!this.airborne) {
+            this.dashCoolingDown = false;
             if (this.landingNeeded) {
               this.handleLandingAnimation();
+            } else if (this.dashRecoveryNeeded) {
+              this.handleDashRecoveryAnimation();
             } else if (this.cursors.up.isDown) {
               this.handleJumpAnimation();
             } else if (this.cursors.left.isDown || this.cursors.right.isDown) {
@@ -3309,6 +3318,7 @@ var _class = function (_Phaser$Sprite) {
       setTimeout(function () {
         _this3.animating = false;
         _this3.frame = 0;
+        _this3.dashRecoveryNeeded = false;
       }, 300);
     }
   }, {
@@ -3325,32 +3335,45 @@ var _class = function (_Phaser$Sprite) {
       }, 250);
     }
   }, {
+    key: 'handleHairballingAnimation',
+    value: function handleHairballingAnimation() {
+      var _this5 = this;
+
+      this.animating = true;
+      this.hairballing = true;
+      this.animations.play('hairball');
+      setTimeout(function () {
+        _this5.animating = false;
+        _this5.frame = 98;
+      }, 250);
+    }
+  }, {
     key: 'handleStandUpAnimation',
     value: function handleStandUpAnimation() {
-      var _this5 = this;
+      var _this6 = this;
 
       this.animating = true;
       this.crouching = false;
       this.animations.play('stand-up');
       setTimeout(function () {
-        _this5.animating = false;
+        _this6.animating = false;
       }, 250);
     }
   }, {
     key: 'handleFlinchAnimation',
     value: function handleFlinchAnimation() {
-      var _this6 = this;
+      var _this7 = this;
 
       this.animating = true;
       this.animations.play('flinch');
       setTimeout(function () {
-        _this6.animating = false;
+        _this7.animating = false;
       }, 500);
     }
   }, {
     key: 'handleDashAnimation',
     value: function handleDashAnimation() {
-      var _this7 = this;
+      var _this8 = this;
 
       this.animating = true;
       this.dashing = true;
@@ -3360,20 +3383,23 @@ var _class = function (_Phaser$Sprite) {
       this.frame = 80;
 
       setTimeout(function () {
-        _this7.animating = false;
-        _this7.dashing = false;
-        _this7.body.velocity.x = 0;
+        _this8.animating = false;
+        _this8.dashing = false;
+        _this8.dashRecoveryNeeded = true;
+        _this8.body.velocity.x = 0;
       }, 250);
     }
   }, {
-    key: 'handledashLandingAnimation',
-    value: function handledashLandingAnimation() {
-      var _this8 = this;
+    key: 'handleDashRecoveryAnimation',
+    value: function handleDashRecoveryAnimation() {
+      var _this9 = this;
 
       this.animating = true;
-      this.animations.play('dash-landing');
+      this.animations.play('dashRecover');
+
       setTimeout(function () {
-        _this8.animating = false;
+        _this9.animating = false;
+        _this9.dashRecoveryNeeded = false;
       }, 500);
     }
   }]);
@@ -11080,6 +11106,8 @@ var _class = function (_Phaser$State) {
       //
       this.load.image('mushroom', 'assets/images/mushroom2.png');
       this.load.spritesheet('ted', 'assets/images/ted_spritesheet.png', 256, 256);
+      this.load.spritesheet('redTed', 'assets/images/red_ted_spritesheet.png', 256, 256);
+      this.load.audio('exist_soundtrack', 'assets/audio/exist_soundtrack.wav');
     }
   }, {
     key: 'create',
@@ -11308,6 +11336,10 @@ var _Ted = __webpack_require__(/*! ../sprites/Ted */ 92);
 
 var _Ted2 = _interopRequireDefault(_Ted);
 
+var _RedTed = __webpack_require__(/*! ../sprites/RedTed */ 348);
+
+var _RedTed2 = _interopRequireDefault(_RedTed);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -11353,6 +11385,17 @@ var _class = function (_Phaser$State) {
         y: this.game.height - (groundHeight + 64)
       });
 
+      this.game.redTed = new _RedTed2.default({
+        game: this.game,
+        x: 500,
+        y: this.game.height - (groundHeight + 64)
+      });
+
+      this.soundtrack = this.game.add.audio('exist_soundtrack');
+      this.soundtrack.loop = true;
+      // this.soundtrack.volume = 0.3
+      this.soundtrack.play();
+
       this.bullets = this.game.add.group();
       this.bullets.enableBody = true;
       this.bullets.physicsBodyType = _phaser2.default.Physics.ARCADE;
@@ -11361,11 +11404,21 @@ var _class = function (_Phaser$State) {
       this.bullets.setAll('outOfBoundsKill', true);
 
       this.game.add.existing(this.game.ted);
-
       this.game.physics.arcade.enable(this.game.ted);
 
       this.game.ted.body.gravity.y = 6000;
       this.game.ted.body.collideWorldBounds = true;
+
+      this.game.add.existing(this.game.redTed);
+      this.game.physics.arcade.enable(this.game.redTed);
+
+      this.game.redTed.body.gravity.y = 6000;
+      this.game.redTed.body.collideWorldBounds = true;
+      /*
+          this.game.redTed.body.onCollide = new Phaser.Signal();
+          this.game.redTed.body.onCollide.add(this.resetLevel, this)
+      */
+
       this.game.camera.follow(this.game.ted);
 
       this.platforms = this.game.add.group();
@@ -11376,6 +11429,11 @@ var _class = function (_Phaser$State) {
 
       ground.scale.setTo(30, 1);
       ground.body.immovable = true;
+    }
+  }, {
+    key: 'resetLevel',
+    value: function resetLevel() {
+      this.state.start('Level1');
     }
   }, {
     key: 'createPlatform',
@@ -11409,6 +11467,13 @@ var _class = function (_Phaser$State) {
         this.fire();
       }
       this.game.physics.arcade.collide(this.game.ted, this.platforms);
+      this.game.physics.arcade.collide(this.game.redTed, this.platforms);
+      if (this.game.physics.arcade.collide(this.game.ted, this.game.redTed)) {
+        this.resetLevel();
+      }
+      if (this.game.physics.arcade.collide(this.bullets, this.game.redTed)) {
+        this.game.redTed.destroy();
+      }
     }
   }, {
     key: 'fire',
@@ -11702,6 +11767,216 @@ exports.default = {
   gameHeight: 1080,
   localStorageName: 'phaseres6webpack'
 };
+
+/***/ }),
+/* 347 */,
+/* 348 */
+/*!*******************************!*\
+  !*** ./src/sprites/RedTed.js ***!
+  \*******************************/
+/*! dynamic exports provided */
+/*! all exports used */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _phaser = __webpack_require__(/*! phaser */ 29);
+
+var _phaser2 = _interopRequireDefault(_phaser);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var _class = function (_Phaser$Sprite) {
+  _inherits(_class, _Phaser$Sprite);
+
+  function _class(_ref) {
+    var game = _ref.game,
+        x = _ref.x,
+        y = _ref.y;
+
+    _classCallCheck(this, _class);
+
+    // this.scale = {x: 0.25, y: 0.25}
+    // this.scale = {x: 0.25, y: 0.25}
+
+    var _this = _possibleConstructorReturn(this, (_class.__proto__ || Object.getPrototypeOf(_class)).call(this, game, x, y, 'redTed'));
+
+    _this.anchor.setTo(0.5);
+    _this.setupAnimations();
+
+    _this.airborne = false;
+    _this.landingNeeded = false;
+    _this.crouching = false;
+    _this.goingUp = false;
+    //this.dir = false // False = right, True = left
+
+    _this.walkSpeed = 1000;
+    _this.jumpSpeed = 4000;
+    _this.iniJumpInc = 3000;
+    _this.jumpInc = 25; // Hold the jump button longer to jump higher.
+
+    _this.facingRight = 1; // 1: Ted's facing right, -1: Ted's facing left
+    _this.dashing = false;
+    _this.dashIni = 3000;
+    _this.dashCoolingDown = false;
+
+    _this.enemyType = 0; // 0 = jumping, 1 = pacing -- should set this after creating
+
+
+    // this.cursors = game.input.keyboard.addKeys({
+    //   'up': Phaser.KeyCode.W,
+    //   'down': Phaser.KeyCode.S,
+    //   'left': Phaser.KeyCode.A,
+    //   'right': Phaser.KeyCode.D,
+    //   'flinch': Phaser.KeyCode.F,
+    //   'dash': Phaser.KeyCode.Q
+    //   })
+    return _this;
+  }
+
+  _createClass(_class, [{
+    key: 'setupAnimations',
+    value: function setupAnimations() {
+      this.animations.add('idle', [0, 0, 0, 0, 1, 2, 1, 0, 3, 4, 3, 0, 0, 0, 0, 0], 8, true);
+      this.animations.add('walk', [16, 17, 18, 17, 16, 19, 20, 19], 16, true);
+      this.animations.add('jump', [32, 33, 34, 35, 36, 37, 38, 39, 40], 32, false);
+      this.animations.add('jump-landing', [32, 33, 34, 35, 36, 37, 38, 39], 32, false);
+      this.animations.add('crouch', [32, 38, 37, 48, 49, 50, 51, 52], 32, false);
+      this.animations.add('stand-up', [52, 51, 50, 49, 48, 37, 38, 32], 32, false);
+      this.animations.add('flinch', [64, 65], 16, true);
+      this.animations.add('dash', [81, 82, 83, 83, 83, 83, 83, 83, 83, 83, 83, 83], 48, false);
+    }
+  }, {
+    key: 'update',
+    value: function update() {
+      if (this.airborne) {
+
+        this.landingNeeded = true;
+        if (this.body.velocity.y < 0) {
+          this.frame = 40;
+        } else {
+          this.frame = 41;
+        }
+      }
+      this.airborne = this.body.touching.down ? this.airborne = false : true;
+
+      if (this.landingNeeded) {
+        this.handleLandingAnimation();
+      } else {
+        this.handleJumpAnimation();
+      }
+    }
+  }, {
+    key: 'handleJumpAnimation',
+    value: function handleJumpAnimation(body) {
+      var _this2 = this;
+
+      this.animating = true;
+      this.animations.play('jump');
+      setTimeout(function () {
+        _this2.animating = false;
+        _this2.airborne = true;
+        _this2.goingUp = true;
+        _this2.body.velocity.y = -_this2.iniJumpInc;
+      }, 20);
+    }
+  }, {
+    key: 'handleLandingAnimation',
+    value: function handleLandingAnimation() {
+      var _this3 = this;
+
+      this.animating = true;
+      this.landingNeeded = false;
+      this.animations.play('jump-landing');
+      setTimeout(function () {
+        _this3.animating = false;
+        _this3.frame = 0;
+      }, 300);
+    }
+  }, {
+    key: 'handleCrouchAnimation',
+    value: function handleCrouchAnimation() {
+      var _this4 = this;
+
+      this.animating = true;
+      this.crouching = true;
+      this.animations.play('crouch');
+      setTimeout(function () {
+        _this4.animating = false;
+        _this4.frame = 52;
+      }, 250);
+    }
+  }, {
+    key: 'handleStandUpAnimation',
+    value: function handleStandUpAnimation() {
+      var _this5 = this;
+
+      this.animating = true;
+      this.crouching = false;
+      this.animations.play('stand-up');
+      setTimeout(function () {
+        _this5.animating = false;
+      }, 250);
+    }
+  }, {
+    key: 'handleFlinchAnimation',
+    value: function handleFlinchAnimation() {
+      var _this6 = this;
+
+      this.animating = true;
+      this.animations.play('flinch');
+      setTimeout(function () {
+        _this6.animating = false;
+      }, 500);
+    }
+  }, {
+    key: 'handleDashAnimation',
+    value: function handleDashAnimation() {
+      var _this7 = this;
+
+      this.animating = true;
+      this.dashing = true;
+      this.dashCoolingDown = true;
+      this.body.velocity.x = this.facingRight * this.dashIni;
+      this.animations.play('dash');
+      this.frame = 80;
+
+      setTimeout(function () {
+        _this7.animating = false;
+        _this7.dashing = false;
+        _this7.body.velocity.x = 0;
+      }, 250);
+    }
+  }, {
+    key: 'handledashLandingAnimation',
+    value: function handledashLandingAnimation() {
+      var _this8 = this;
+
+      this.animating = true;
+      this.animations.play('dash-landing');
+      setTimeout(function () {
+        _this8.animating = false;
+      }, 500);
+    }
+  }]);
+
+  return _class;
+}(_phaser2.default.Sprite);
+
+exports.default = _class;
 
 /***/ })
 ],[130]);
