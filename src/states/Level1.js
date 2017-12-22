@@ -1,5 +1,6 @@
 import Phaser from 'phaser'
 import Ted from '../sprites/Ted'
+import RedTed from '../sprites/RedTed'
 
 export default class extends Phaser.State {
   init () {
